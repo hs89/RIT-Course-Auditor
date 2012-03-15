@@ -1,16 +1,11 @@
 require 'mechanize'
 require 'highline'
-require 'nokogiri'
-require 'pp'
-
 
 agent = Mechanize.new
 agent.user_agent_alias = 'Windows Mozilla'
 agent.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-
 def mine_data(discipline_number, course_list_page)
-
   course_table_rows = course_list_page.parser.xpath("//table[@class='stripeMe courseList menuBox']/tbody/tr")
   course_table_rows.collect do |row|
     if(row.at("td[7]") == nil)
@@ -20,18 +15,14 @@ def mine_data(discipline_number, course_list_page)
       puts "TODO"
     
     else
-      if(row.at("td[4]").text.strip =~ /Closed/)
-        
-      else
-        course_num = discipline_number.to_s + "-" + row.at("td[1]").text.strip
-        course_title = row.at("td[2]").text.strip
-        course_instructor = row.at("td[3]").text.strip
-        course_days = row.at("td[7]").text.strip
-        course_from = row.at("td[8]").text.strip
-        course_to = row.at("td[9]").text.strip
-        course_location = row.at("td[10]").text.strip
-        puts course_num + "  " + course_title + "  " + course_instructor + "  " + course_days + "  " + course_from + "  " + course_to + "  " + course_location
-      end
+      course_num = discipline_number.to_s + "-" + row.at("td[1]").text.strip
+      course_title = row.at("td[2]").text.strip
+      course_instructor = row.at("td[3]").text.strip
+      course_days = row.at("td[7]").text.strip
+      course_from = row.at("td[8]").text.strip
+      course_to = row.at("td[9]").text.strip
+      course_location = row.at("td[10]").text.strip
+      puts course_num + "  " + course_title + "  " + course_instructor + "  " + course_days + "  " + course_from + "  " + course_to + "  " + course_location
     end
   end
 end
