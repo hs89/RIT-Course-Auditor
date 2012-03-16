@@ -115,21 +115,28 @@ class Course
       course_from = convertTimeToMilitary(@course_from)
       @course_location.match(/(.{3})-*/)
       bldg_num = $1
-      if(@course_days =~ /M/)
+      if(@course_days =~ /M/) then
         monday.zadd(bldg_num, course_from, @course_num)
-      if(@course_days =~ /T/)
+      end
+      if(@course_days =~ /T/) then
         tuesday.zadd(bldg_num, course_from, @course_num)
-      if(@course_days =~ /W/)
+      end
+      if(@course_days =~ /W/) then
         wednesday.zadd(bldg_num, course_from, @course_num)
-      if(@course_days =~ /R/)
+      end
+      if(@course_days =~ /R/) then
         thursday.zadd(bldg_num, course_from, @course_num)
-      if(@course_days =~ /F/)
+      end
+      if(@course_days =~ /F/) then
         friday.zadd(bldg_num, course_from, @course_num)
-      if(@course_days =~ /S/)
+      end
+      if(@course_days =~ /S/) then
         saturday.zadd(bldg_num, course_from, @course_num)
-      if(@course_days =~ /U/)
+      end
+      if(@course_days =~ /U/) then
         sunday.zadd(bldg_num, course_from, @course_num)
       end
+      
       
       json_obj = {
         "num" => @course_num,
