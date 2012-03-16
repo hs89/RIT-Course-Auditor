@@ -2,6 +2,10 @@ require 'mechanize'
 require 'highline'
 require 'redis'
 
+@database_server = "96.8.118.7"
+@database_port = 1234
+@database_password ="audit"
+
 class Course
   def init(course_num, course_title, course_instructor, course_days, course_from, course_to, course_location)
     @course_num = course_num
@@ -23,6 +27,8 @@ class Course
     puts @course_num + "  " + @course_title + "  " + @course_instructor + "  " + @course_days + "  " + @course_from + "  " + @course_to + "  " + @course_location
   end
   def write
+    #TODO: Handle TBA special case
+    
     print
   end
 end
@@ -75,11 +81,22 @@ def scrape_SIS
 end
 
 def connect_database
+  @redis = Redis.new(:host => @database_server,
+                     :port => @database_port)
+  connected = @redis.auth(@database_password)
+  
+  if (connected == "OK")
+    then return true
+  else
+    return false
+  end
   
 end
+
 
 if(connect_database)
   scrape_SIS
 else
   puts "Failed to connect to the database"
+  exit
 end
