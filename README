@@ -4,3 +4,4 @@ Parser special cases:
   1. Courses with multiple classrooms for the same course number
   2. Courses with multiple professors
   3. Courses with location TBA don't need to be considered
+  4. Online courses don't need to be considered
