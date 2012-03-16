@@ -7,42 +7,14 @@ require 'json'
 @database_port = 1234
 @database_password ="audit"
 
-@monday = Redis.new(:host => @database_server,
+@redis = Redis.new(:host => @database_server,
                    :port => @database_port)
-@tuesday = Redis.new(:host => @database_server,
-                   :port => @database_port)
-@wednesday = Redis.new(:host => @database_server,
-                   :port => @database_port)
-@thursday = Redis.new(:host => @database_server,
-                   :port => @database_port)
-@friday = Redis.new(:host => @database_server,
-                   :port => @database_port)
-@saturday = Redis.new(:host => @database_server,
-                   :port => @database_port)
-@sunday = Redis.new(:host => @database_server,
-                   :port => @database_port)
-@course_db = Redis.new(:host => @database_server,
-                   :port => @database_port)
+
 
 def connect_database
 
-  connected = @monday.auth(@database_password)
-  @monday.select(0)
-  @tuesday.auth(@database_password)
-  @tuesday.select(1)
-  @wednesday.auth(@database_password)
-  @wednesday.select(2)
-  @thursday.auth(@database_password)
-  @thursday.select(3)
-  @friday.auth(@database_password)
-  @friday.select(4)
-  @saturday.auth(@database_password)
-  @saturday.select(5)
-  @sunday.auth(@database_password)
-  @sunday.select(6)
-  @course_db.auth(@database_password)
-  @course_db.select(7)
-  
+  connected = @redis.auth(@database_password)
+  @redis.flushall 
   
   if (connected == "OK")
     then return true
@@ -102,7 +74,7 @@ class Course
     
   end
   
-  def write(monday,tuesday,wednesday,thursday,friday,saturday,sunday,course_db)
+  def write(redis)
     if(@course_location == "TBA" ||
        @course_days == "TBA" ||
        @course_from == "TBA" ||
@@ -116,25 +88,32 @@ class Course
       @course_location.match(/(.{3})-*/)
       bldg_num = $1
       if(@course_days =~ /M/) then
-        monday.zadd(bldg_num, course_from, @course_num)
+        redis.select 0
+        redis.zadd(bldg_num, course_from, @course_num)
       end
       if(@course_days =~ /T/) then
-        tuesday.zadd(bldg_num, course_from, @course_num)
+        redis.select 1
+        redis.zadd(bldg_num, course_from, @course_num)
       end
       if(@course_days =~ /W/) then
-        wednesday.zadd(bldg_num, course_from, @course_num)
+        redis.select 2
+        redis.zadd(bldg_num, course_from, @course_num)
       end
       if(@course_days =~ /R/) then
-        thursday.zadd(bldg_num, course_from, @course_num)
+        redis.select 3
+        redis.zadd(bldg_num, course_from, @course_num)
       end
       if(@course_days =~ /F/) then
-        friday.zadd(bldg_num, course_from, @course_num)
+        redis.select 4
+        redis.zadd(bldg_num, course_from, @course_num)
       end
       if(@course_days =~ /S/) then
-        saturday.zadd(bldg_num, course_from, @course_num)
+        redis.select 5
+        redis.zadd(bldg_num, course_from, @course_num)
       end
       if(@course_days =~ /U/) then
-        sunday.zadd(bldg_num, course_from, @course_num)
+        redis.select 6
+        redis.zadd(bldg_num, course_from, @course_num)
       end
       
       
@@ -147,7 +126,8 @@ class Course
         "to" => @course_to,
         "location" => @course_location
       }.to_json
-      course_db.set(@course_num,json_obj)
+      redis.select 7
+      redis.set(@course_num,json_obj)
     end    
   end
 end
@@ -180,7 +160,7 @@ def create_database(discipline_number, course_list_page)
       temp_course.init(@course_num, @course_title, @course_instructor, @course_days, @course_from, @course_to, @course_location)      
     end
     if(temp_course != false)
-      temp_course.write(@monday,@tuesday,@wednesday,@thursday,@friday,@saturday,@sunday,@course_db)   
+      temp_course.write(@redis)   
     end
   end
 end
