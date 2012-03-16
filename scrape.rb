@@ -12,24 +12,42 @@ class Course
     @course_title = course_title
     @course_instructor = course_instructor
 
-    #TODO: Fix this regex.. it will properly create the list of professors teaching the course but if they have a trailing Jr. in their name it doesnt work    
+    if (@course_instructor =~ /TBA/)
+      @course_instructor.gsub!("T TBA", "")
+      @course_instructor.gsub!("TBA","")
+      if(@course_instructor == nil ||
+         @course_instructor == "")
+        return false
+      end
+    end
     matches = @course_instructor.scan(/(\S\s\S+)/)
     if(matches.length > 1)
       @course_instructor = "#{matches[0, matches.length].join(', ')}"
     else
     end
+    @course_instructor.strip!
     @course_days = course_days
     @course_from = course_from
     @course_to = course_to
     @course_location = course_location
   end
+  
   def print
     puts @course_num + "  " + @course_title + "  " + @course_instructor + "  " + @course_days + "  " + @course_from + "  " + @course_to + "  " + @course_location
   end
+  
   def write
-    #TODO: Handle TBA special case
-    
-    print
+    if(@course_location == "TBA" ||
+       @course_days == "TBA" ||
+       @course_from == "TBA" ||
+       @course_to == "TBA" ||
+       @course_instructor == "")
+      #Don't want to write this data to the database
+      return
+    else
+      #Write Data to appropriate databases
+      print
+    end    
   end
 end
 
@@ -60,7 +78,9 @@ def create_database(discipline_number, course_list_page)
       @course_location = row.at("td[10]").text.strip
       temp_course.init(@course_num, @course_title, @course_instructor, @course_days, @course_from, @course_to, @course_location)      
     end
-    temp_course.write
+    if(temp_course != false)
+      temp_course.write    
+    end
   end
 end
 
@@ -90,7 +110,6 @@ def connect_database
   else
     return false
   end
-  
 end
 
 
